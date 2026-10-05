@@ -26,7 +26,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from src.evaluation.calibration import ModelCalibrator
+from src.evaluation.calibration import ModelCalibrator, select_validation_locked_calibrator
 from src.evaluation.metrics import compute_classification_metrics
 from src.evaluation.statistical_testing import (
     compute_bootstrap_confidence_interval,
@@ -60,7 +60,7 @@ def train_eval_single(
     test_df: pd.DataFrame,
     target_col: str = "fire",
 ) -> tuple[dict, dict[str, np.ndarray], object]:
-    """Train model, fit Platt and Isotonic calibrators on validation set, evaluate on test set."""
+    """Train model, select calibration method exclusively on validation data, evaluate once on test set."""
     X_tr = train_df[features]
     y_tr = train_df[target_col].values
     X_va = val_df[features]
@@ -71,32 +71,41 @@ def train_eval_single(
     estimator.fit(X_tr, y_tr)
     val_p = estimator.predict_proba(X_va)[:, 1]
 
-    cal_platt = ModelCalibrator(method="platt").fit(val_p, y_va)
-    cal_iso = ModelCalibrator(method="isotonic").fit(val_p, y_va)
+    # Pre-declared validation-locked calibration selection (minimum validation Brier score)
+    selected_method, locked_calibrator, val_briers, candidates = (
+        select_validation_locked_calibrator(val_p, y_va, criterion="brier")
+    )
 
     raw_test_p = estimator.predict_proba(X_te)[:, 1]
-    platt_test_p = cal_platt.calibrate(raw_test_p)
-    iso_test_p = cal_iso.calibrate(raw_test_p)
+    platt_test_p = candidates["platt"].calibrate(raw_test_p)
+    iso_test_p = candidates["isotonic"].calibrate(raw_test_p)
+    locked_test_p = locked_calibrator.calibrate(raw_test_p)
 
     raw_m = compute_classification_metrics(y_te, raw_test_p)
     platt_m = compute_classification_metrics(y_te, platt_test_p)
     iso_m = compute_classification_metrics(y_te, iso_test_p)
+    locked_m = compute_classification_metrics(y_te, locked_test_p)
 
     probs = {
         "raw": raw_test_p,
         "platt": platt_test_p,
         "isotonic": iso_test_p,
+        "selected": locked_test_p,
     }
 
     return {
         "model_id": name,
         "feature_count": len(features),
         "target": target_col,
+        "selected_calibration_method": selected_method,
+        "validation_brier_raw": val_briers["raw"],
+        "validation_brier_platt": val_briers["platt"],
+        "validation_brier_isotonic": val_briers["isotonic"],
         "raw": raw_m,
         "platt": platt_m,
         "isotonic": iso_m,
-        # Default cal maps to platt which regularizes without inflating test ECE
-        "calibrated": platt_m,
+        # 'calibrated' refers strictly to the validation-locked selected method
+        "calibrated": locked_m,
         "uncalibrated": raw_m,
     }, probs, estimator
 
@@ -141,7 +150,7 @@ def run_controlled_baseline_experiments(
         print(f"Training {name} ({len(feats)} features)...", flush=True)
         res, probs_dict, fitted = train_eval_single(name, clf, feats, train_df, val_df, test_df, target_col=target_col)
         all_results.append(res)
-        test_preds_df[f"prob_{name}"] = np.round(probs_dict["platt"], 4)
+        test_preds_df[f"prob_{name}"] = np.round(probs_dict["selected"], 4)
         stored_probs[name] = probs_dict
         joblib.dump(fitted, output_dir / f"{name}.joblib")
 
@@ -149,9 +158,17 @@ def run_controlled_baseline_experiments(
     summary_rows = []
     cal_comp_rows = []
     for r in all_results:
-        row = {"model_id": r["model_id"], "features": r["feature_count"]}
-        for k, v in r["platt"].items():
+        row = {
+            "model_id": r["model_id"],
+            "features": r["feature_count"],
+            "selected_calibration_method": r["selected_calibration_method"],
+            "val_brier_raw": r["validation_brier_raw"],
+            "val_brier_platt": r["validation_brier_platt"],
+            "val_brier_isotonic": r["validation_brier_isotonic"],
+        }
+        for k, v in r["calibrated"].items():
             row[f"cal_{k}"] = v
+        for k, v in r["platt"].items():
             row[f"platt_{k}"] = v
         for k, v in r["raw"].items():
             row[f"raw_{k}"] = v
@@ -164,6 +181,8 @@ def run_controlled_baseline_experiments(
                 "model_id": r["model_id"],
                 "features": r["feature_count"],
                 "calibration_method": m_name,
+                "is_validation_selected": (m_name == r["selected_calibration_method"]),
+                "val_brier_score": r[f"validation_brier_{m_name}"],
                 **r[m_name],
             })
 
@@ -179,10 +198,10 @@ def run_controlled_baseline_experiments(
     from src.evaluation.statistical_testing import compute_factorial_interaction_bootstrap
 
     fact_records = []
-    prob_A = stored_probs["ExpA_HGB_31_Baseline"]["platt"]
-    prob_B = stored_probs["ExpB_HGB_39_Multimodal"]["platt"]
-    prob_C = stored_probs["ExpC_LGBM_31_Baseline"]["platt"]
-    prob_D = stored_probs["ExpD_LGBM_39_Multimodal"]["platt"]
+    prob_A = stored_probs["ExpA_HGB_31_Baseline"]["selected"]
+    prob_B = stored_probs["ExpB_HGB_39_Multimodal"]["selected"]
+    prob_C = stored_probs["ExpC_LGBM_31_Baseline"]["selected"]
+    prob_D = stored_probs["ExpD_LGBM_39_Multimodal"]["selected"]
 
     for metric in ["roc_auc", "pr_auc", "brier", "f1"]:
         fact_dict = compute_factorial_interaction_bootstrap(y_test, prob_A, prob_B, prob_C, prob_D, metric_name=metric, n_bootstraps=1000)
@@ -202,8 +221,8 @@ def run_controlled_baseline_experiments(
 
     boot_records = []
     for label, mod_a, mod_b in comparisons:
-        p_a = stored_probs[mod_a]["platt"]
-        p_b = stored_probs[mod_b]["platt"]
+        p_a = stored_probs[mod_a]["selected"]
+        p_b = stored_probs[mod_b]["selected"]
         for metric in ["roc_auc", "pr_auc", "brier", "f1"]:
             ci_res = compute_bootstrap_confidence_interval(y_test, p_a, p_b, metric_name=metric, n_bootstraps=1000)
             boot_records.append({
@@ -220,7 +239,7 @@ def run_controlled_baseline_experiments(
     print("Computing Precision@k and Recall@k...", flush=True)
     pk_records = []
     for name in ["ExpA_HGB_31_Baseline", "ExpB_HGB_39_Multimodal", "ExpD_LGBM_39_Multimodal"]:
-        pk_df = compute_precision_recall_at_k(y_test, stored_probs[name]["platt"], k_list=[100, 250, 500, 1000, 2500])
+        pk_df = compute_precision_recall_at_k(y_test, stored_probs[name]["selected"], k_list=[100, 250, 500, 1000, 2500])
         pk_df["model_id"] = name
         pk_records.append(pk_df)
     pd.concat(pk_records, ignore_index=True).to_csv(output_dir / "precision_recall_at_k.csv", index=False)

@@ -50,6 +50,46 @@ class ModelCalibrator:
         return p
 
 
+def select_validation_locked_calibrator(
+    val_probs: np.ndarray,
+    val_labels: np.ndarray,
+    criterion: str = "brier",
+) -> tuple[str, ModelCalibrator, dict[str, float], dict[str, ModelCalibrator]]:
+    """Select calibration method (raw, platt, isotonic) exclusively on validation data.
+
+    Evaluation criterion:
+    - 'brier': Mean squared error between calibrated validation probabilities and validation ground-truth.
+    Selection is locked purely on validation data before touching the test set.
+
+    Returns:
+    -------
+    selected_method : str
+        Winning calibration method ('raw', 'platt', or 'isotonic').
+    locked_calibrator : ModelCalibrator
+        Fitted calibrator corresponding to the selected method.
+    val_briers : dict[str, float]
+        Validation Brier scores for 'raw', 'platt', and 'isotonic'.
+    fitted_calibrators : dict[str, ModelCalibrator]
+        All candidate calibrators fitted on validation data.
+    """
+    methods = ["raw", "platt", "isotonic"]
+    calibrators = {}
+    val_briers = {}
+
+    y_val = np.asarray(val_labels, dtype=float)
+    p_val_raw = np.clip(np.asarray(val_probs, dtype=float), 1e-6, 1.0 - 1e-6)
+
+    for m in methods:
+        cal = ModelCalibrator(method=m).fit(p_val_raw, y_val)
+        calibrators[m] = cal
+        p_val_cal = cal.calibrate(p_val_raw)
+        brier = float(np.mean((p_val_cal - y_val) ** 2))
+        val_briers[m] = round(brier, 6)
+
+    selected_method = min(val_briers, key=val_briers.get)
+    return selected_method, calibrators[selected_method], val_briers, calibrators
+
+
 def evaluate_calibration_methods(
     val_probs: np.ndarray,
     val_labels: np.ndarray,

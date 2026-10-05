@@ -3,7 +3,7 @@
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![Framework: PyTorch | LightGBM](https://img.shields.io/badge/Framework-PyTorch%20%7C%20LightGBM-orange.svg)](https://pytorch.org/)
 [![Evaluation: Disjoint Holdouts](https://img.shields.io/badge/Evaluation-Spatially%20Disjoint-brightgreen.svg)](docs/EVALUATION_PROTOCOL.md)
-[![Testing: Pytest](https://img.shields.io/badge/Tests-Passing%20(52%2F52)-brightgreen.svg)](tests/)
+[![Testing: Pytest](https://img.shields.io/badge/Tests-Passing%20(60%2F60)-brightgreen.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 An event-centric, multimodal spatiotemporal wildfire forecasting framework for sovereign India (2018–2025). Integrates **NASA FIRMS VIIRS 375m** satellite telemetry, **Copernicus ERA5-Land** multi-timescale atmospheric reanalysis, authoritative **NOAA ETOPO 2022** digital elevation geomorphology (incorporating NASA SRTM v3), atmospheric fuel moisture deficit dynamics, and connected-component spatiotemporal fire event tracking.
@@ -177,7 +177,7 @@ major-forest-fire/
 │   └── replay/                        # Multi-date retrospective replay benchmark engine
 │       └── historical_replay.py
 │
-├── tests/                             # Automated verification test suite (52 tests)
+├── tests/                             # Automated verification test suite (60 tests)
 │   ├── test_application_api.py
 │   ├── test_boundary_and_geometry.py
 │   ├── test_dataset_schema.py
@@ -205,6 +205,10 @@ major-forest-fire/
 │   └── literature_matrix.csv
 │
 ├── docs/                              # Detailed scientific methodology documentation
+│   ├── FINAL_COMPLETION_REPORT.md     # Formal scientific freeze & viva completion report
+│   ├── SCIENTIFIC_VALIDATION_REPORT.md# 15-point hostile peer-review audit & verification
+│   ├── UI_REDESIGN_REPORT.md          # Editorial atlas design system & UI benchmarks
+│   ├── REPOSITORY_CLEANUP_REPORT.md   # Structural audit & duplicate purge log
 │   ├── DATA_SOURCES.md
 │   ├── DATA_SCHEMA.md
 │   ├── LEAKAGE_POLICY.md
@@ -214,9 +218,16 @@ major-forest-fire/
 │   ├── RESULTS.md
 │   ├── LITERATURE_GAP.md
 │   ├── MAJOR_PROJECT_ARCHITECTURE.md
-│   ├── CURRENT_STATE_AUDIT.md
-│   └── DEPLOYMENT.md
+│   └── CURRENT_STATE_AUDIT.md
 │
-└── templates/                         # Web GIS demonstration interface
-    └── index.html
+├── static/                            # Modular CSS tokens and JS controllers
+│   ├── css/                           # Components, layout, map, and design tokens
+│   └── js/                            # AtlasMap, overview, risk, history, research
+│
+└── templates/                         # Modular Jinja2 web interface templates
+    ├── base.html                      # Shared header, navigation, and disclaimer footer
+    ├── overview.html                  # "India, in focus.", live surveillance & priority table
+    ├── risk.html                      # 39-feature risk classifier & multi-horizon projections
+    ├── history.html                   # Event complexes & dual-domain prospective replay
+    └── research.html                  # Academic benchmarks, 2x2 factorial, forest plot, LOGRO
 ```

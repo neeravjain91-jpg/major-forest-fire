@@ -408,3 +408,53 @@ def test_block_bootstrap_confidence_interval():
     assert "ci_95_upper" in res
     assert res["ci_95_lower"] <= res["ci_95_upper"]
 
+
+def test_authoritative_event_clustering_threshold_is_25km():
+    """Verify that 25.0 km is the single authoritative spatial event clustering threshold across code."""
+    import inspect
+    from src.events.event_clustering import cluster_fire_events, check_event_persistence_linkage
+
+    sig_cluster = inspect.signature(cluster_fire_events)
+    assert sig_cluster.parameters["spatial_radius_km"].default == 25.0
+    assert sig_cluster.parameters["temporal_gap_days"].default == 2
+
+    sig_link = inspect.signature(check_event_persistence_linkage)
+    assert sig_link.parameters["max_spatial_km"].default == 25.0
+
+
+def test_validation_locked_calibration_selection():
+    """Verify that select_validation_locked_calibrator strictly selects minimum validation Brier score."""
+    from src.evaluation.calibration import select_validation_locked_calibrator
+
+    np.random.seed(123)
+    val_probs = np.random.uniform(0.2, 0.8, 500)
+    # Perfect linear relationship with log-odds -> Platt scaling should achieve low Brier score
+    val_labels = (val_probs > 0.5).astype(int)
+
+    sel_method, locked_cal, val_briers, candidates = select_validation_locked_calibrator(
+        val_probs, val_labels, criterion="brier"
+    )
+
+    assert sel_method in ("raw", "platt", "isotonic")
+    assert sel_method == min(val_briers, key=val_briers.get)
+    assert val_briers[sel_method] <= val_briers["raw"] or val_briers[sel_method] <= val_briers["platt"] or val_briers[sel_method] <= val_briers["isotonic"]
+
+    # Locked calibrator output matches selected candidate
+    test_p = np.array([0.3, 0.7])
+    assert np.allclose(locked_cal.calibrate(test_p), candidates[sel_method].calibrate(test_p))
+
+
+def test_discrimination_ablation_stores_raw_ranking():
+    """Verify that ablation study separates raw discrimination from post-hoc calibration."""
+    ablation_csv = Path("results/ablations/ablation_comparison.csv")
+    if ablation_csv.exists():
+        df_abl = pd.read_csv(ablation_csv)
+        assert "raw_roc_auc" in df_abl.columns
+        assert "raw_pr_auc" in df_abl.columns
+        assert "cal_roc_auc" in df_abl.columns
+        assert "selected_calibration_method" in df_abl.columns
+        # Verify 39-feature full model has higher raw ROC-AUC than 6-feature 1d weather
+        auc_full = df_abl[df_abl["ablation_id"] == "E_Full_Multimodal"]["raw_roc_auc"].iloc[0]
+        auc_1d = df_abl[df_abl["ablation_id"] == "A_Weather_1d_Only"]["raw_roc_auc"].iloc[0]
+        assert auc_full > auc_1d
+

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from lightgbm import LGBMClassifier
 
-from src.evaluation.calibration import ModelCalibrator
+from src.evaluation.calibration import ModelCalibrator, select_validation_locked_calibrator
 from src.evaluation.metrics import compute_classification_metrics
 
 # Modality Feature Subsets
@@ -45,7 +45,7 @@ def run_ablation_experiments(
     output_dir: Path,
     target_col: str = "fire",
 ) -> pd.DataFrame:
-    """Run controlled ablation study across identical splits."""
+    """Run controlled ablation study across identical splits with consistent validation-locked calibration."""
     print("Loading datasets for ablation study...", flush=True)
     train_df = pd.read_csv(train_path)
     val_df = pd.read_csv(val_path)
@@ -80,41 +80,64 @@ def run_ablation_experiments(
         clf.fit(train_df[feat_subset], y_train)
 
         val_p = clf.predict_proba(val_df[feat_subset])[:, 1]
-        calibrator = ModelCalibrator(method="isotonic").fit(val_p, y_val)
-
         raw_test_p = clf.predict_proba(test_df[feat_subset])[:, 1]
-        cal_test_p = calibrator.calibrate(raw_test_p)
 
-        uncal_m = compute_classification_metrics(y_test, raw_test_p)
+        # 1. Pure discrimination evaluation (raw uncalibrated ranking)
+        raw_m = compute_classification_metrics(y_test, raw_test_p)
+
+        # 2. Validation-locked post-hoc calibration (predeclared minimum validation Brier score)
+        sel_method, locked_calibrator, val_briers, _ = select_validation_locked_calibrator(
+            val_p, y_val, criterion="brier"
+        )
+        cal_test_p = locked_calibrator.calibrate(raw_test_p)
         cal_m = compute_classification_metrics(y_test, cal_test_p)
 
         records.append({
             "ablation_id": name,
             "description": desc,
             "feature_count": len(feat_subset),
+            "selected_calibration_method": sel_method,
+            "val_brier_score": val_briers[sel_method],
+            # Raw discrimination (primary benchmark for feature contribution)
+            "raw_roc_auc": raw_m["roc_auc"],
+            "raw_pr_auc": raw_m["pr_auc"],
+            "raw_brier_score": raw_m["brier_score"],
+            "raw_ece": raw_m["ece"],
+            "raw_accuracy": raw_m["accuracy"],
+            "raw_f1": raw_m["f1"],
+            # Calibrated probability metrics
             "cal_accuracy": cal_m["accuracy"],
             "cal_f1": cal_m["f1"],
             "cal_roc_auc": cal_m["roc_auc"],
             "cal_pr_auc": cal_m["pr_auc"],
             "cal_brier_score": cal_m["brier_score"],
             "cal_ece": cal_m["ece"],
-            "uncal_roc_auc": uncal_m["roc_auc"],
-            "uncal_ece": uncal_m["ece"],
+            # Backward-compatible column aliases
+            "uncal_roc_auc": raw_m["roc_auc"],
+            "uncal_ece": raw_m["ece"],
         })
 
-    # Add uncalibrated full model row for comparison
+    # Add uncalibrated full model row for direct reference
     records.append({
         "ablation_id": "F_Full_Multimodal_Uncalibrated",
         "description": "Full multimodal model without post-hoc probability calibration",
         "feature_count": len(ablations[-1][1]),
-        "cal_accuracy": uncal_m["accuracy"],
-        "cal_f1": uncal_m["f1"],
-        "cal_roc_auc": uncal_m["roc_auc"],
-        "cal_pr_auc": uncal_m["pr_auc"],
-        "cal_brier_score": uncal_m["brier_score"],
-        "cal_ece": uncal_m["ece"],
-        "uncal_roc_auc": uncal_m["roc_auc"],
-        "uncal_ece": uncal_m["ece"],
+        "selected_calibration_method": "raw",
+        "val_brier_score": val_briers["raw"],
+        "raw_roc_auc": raw_m["roc_auc"],
+        "raw_pr_auc": raw_m["pr_auc"],
+        "raw_brier_score": raw_m["brier_score"],
+        "raw_ece": raw_m["ece"],
+        "raw_accuracy": raw_m["accuracy"],
+        "raw_f1": raw_m["f1"],
+        "cal_accuracy": raw_m["accuracy"],
+        "cal_f1": raw_m["f1"],
+        "cal_roc_auc": raw_m["roc_auc"],
+        "cal_pr_auc": raw_m["pr_auc"],
+        "cal_brier_score": raw_m["brier_score"],
+        "cal_ece": raw_m["ece"],
+        "uncal_roc_auc": raw_m["roc_auc"],
+        "uncal_ece": raw_m["ece"],
     })
 
     summary_df = pd.DataFrame(records)
