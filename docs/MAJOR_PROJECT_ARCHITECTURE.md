@@ -6,7 +6,7 @@ The Major Project transitions from a static 31-feature occurrence classifier int
 
 While the mini-project baseline addressed *"Can we classify fire occurrence given today's meteorology?"*, the Major Project investigates:
 1. **Forward Multi-Horizon Forecasting ($T+24\text{h}$, $T+48\text{h}$)**: Predicting fire risk with strictly causal temporal availability.
-2. **Spatiotemporal Event Clusters**: Constructing connected fire complexes ($\text{DBSCAN-ST}$) with tracked duration, perimeters, and centroid trajectories.
+2. **Spatiotemporal Event Clusters**: Constructing connected fire complexes (threshold-based spatiotemporal connected-component event tracking) with tracked duration, perimeters, and centroid trajectories.
 3. **Multimodal Environmental Fusion**: Unifying multi-timescale atmospheric drying (ERA5-Land 1d, 3d, 7d), terrain geomorphology (elevation, slope, ruggedness), atmospheric fuel dryness (VPD, soil moisture draw-down), and antecedent fire persistence.
 4. **Geographic Generalization**: Measuring spatial transfer across distinct predefined geographic fire regimes (e.g., Central Deciduous vs. Western Ghats vs. Northeast).
 5. **Probability Calibration & Epistemic Uncertainty**: Brier score, Expected Calibration Error (ECE), and out-of-distribution (OOD) distance tracking.

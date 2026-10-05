@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}India Forest Fire Intelligence | Spatiotemporal Wildfire Intelligence{% endblock %}</title>
+
+  <!-- Typography: Newsreader Editorial Serif, Inter Sans, JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+
+  <!-- Leaflet GIS Mapping CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <!-- Editorial Atlas Design System -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/map.css') }}">
+  {% block styles %}{% endblock %}
+</head>
+<body>
+  <!-- Site Header & Navigation -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div style="display: flex; align-items: center; gap: 18px;">
+        <a href="/" class="brand">
+          <div class="brand-flame">&#128293;</div>
+          <div>
+            <div class="brand-title">India Forest Fire Intelligence</div>
+            <div class="kicker" style="font-size: 0.625rem; letter-spacing: 0.05em; color: var(--text-muted);">
+              Active Surveillance &bull; Satellite Intelligence
+            </div>
+          </div>
+        </a>
+        <span class="brand-badge">RESEARCH PLATFORM</span>
+      </div>
+
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link {% if active_page == 'overview' or not active_page %}active{% endif %}">Overview</a></li>
+          <li><a href="/risk" class="nav-link {% if active_page == 'risk' %}active{% endif %}">Risk Classifier</a></li>
+          <li><a href="/history" class="nav-link {% if active_page == 'history' %}active{% endif %}">History</a></li>
+          <li><a href="/research" class="nav-link {% if active_page == 'research' %}active{% endif %}">Research</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <div id="live-indicator-badge" class="live-indicator {% if not has_key %}demo{% endif %}">
+          <span class="pulse-dot"></span>
+          <span id="live-indicator-text">{% if has_key %}LIVE FEED (VIIRS){% else %}DEMO ARCHIVE{% endif %}</span>
+        </div>
+        <button id="btn-refresh-feed" class="btn-refresh" title="Query latest NASA FIRMS satellite observations">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          Refresh Feed
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main class="app-wrapper">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Editorial Footer & Research Disclaimer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-disclaimer">
+        <strong>Scientific Research Demonstration</strong> &mdash; Developed strictly for academic research and empirical methodology evaluation.<br>
+        Not an operational disaster dispatch, emergency alert, or civil warning system.
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-muted); text-align: right;">
+        NOAA ETOPO 2022 Global Relief Model &bull; NASA FIRMS VIIRS 375m &bull; ECMWF ERA5-Land Reanalysis<br>
+        Sovereign India Spatial Domain (0.10&deg; Analysis Grid)
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet GIS Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

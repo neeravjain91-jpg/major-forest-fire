@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}India, in focus. | National Wildfire Intelligence & Satellite Surveillance{% endblock %}
+
+{% block content %}
+<div class="overview-grid">
+  <!-- Left Intelligence Summary Panel -->
+  <aside class="intel-panel">
+    <div class="card" style="padding: 28px 24px;">
+      <div class="kicker" style="margin-bottom: 6px;">SATELLITE SURVEILLANCE</div>
+      <h1 class="serif-heading" style="font-size: 2.375rem; font-weight: 500; line-height: 1.15; margin-bottom: 4px;">
+        India, in focus.
+      </h1>
+      <p style="font-size: 0.84375rem; color: var(--text-muted); margin-bottom: 24px;">
+        Past 24 hours &bull; Sovereign Landmass
+      </p>
+
+      <!-- Primary Hotspot KPIs -->
+      <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px;">
+        <div class="kpi-block" style="border-left: 3px solid var(--text-primary);">
+          <div class="kpi-label">ACTIVE HOTSPOTS</div>
+          <div id="kpi-active-hotspots" class="kpi-value mono">&mdash;</div>
+          <div class="kpi-subtext">Verified 375m VIIRS thermal anomalies</div>
+        </div>
+
+        <div class="kpi-block featured" style="border-left: 3px solid var(--fire-orange);">
+          <div class="kpi-label" style="color: var(--fire-orange-dark);">SEVERE DETECTIONS (&ge; 50 MW)</div>
+          <div id="kpi-severe-detections" class="kpi-value mono" style="color: var(--fire-orange-dark);">&mdash;</div>
+          <div class="kpi-subtext">Intense crown / high-rate combustion complexes</div>
+        </div>
+      </div>
+
+      <!-- Secondary FRP Metrics -->
+      <div class="kpi-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+        <div class="kpi-block">
+          <div class="kpi-label">Peak FRP</div>
+          <div id="kpi-peak-frp" class="mono" style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">&mdash;</div>
+          <div class="kpi-subtext">Max radiative power</div>
+        </div>
+        <div class="kpi-block">
+          <div class="kpi-label">Mean FRP</div>
+          <div id="kpi-mean-frp" class="mono" style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary);">&mdash;</div>
+          <div class="kpi-subtext">Average intensity</div>
+        </div>
+      </div>
+
+      <!-- Satellite Constellation Selector -->
+      <div class="form-group" style="margin-bottom: 18px;">
+        <label class="form-label">
+          <span>Satellite Constellation</span>
+          <span class="unit">FIRMS NRT</span>
+        </label>
+        <select id="satellite-source-select" class="form-select">
+          <option value="ALL">All VIIRS (Suomi-NPP + NOAA-20 + NOAA-21)</option>
+          <option value="SNPP">Suomi-NPP (VNP14IMGTDL)</option>
+          <option value="NOAA20">NOAA-20 (VJ114IMGTDL)</option>
+          <option value="NOAA21">NOAA-21 (VJ214IMGTDL)</option>
+        </select>
+      </div>
+
+      <!-- Active Inference Engine Reference -->
+      <div style="padding-top: 14px; border-top: 1px solid var(--border-subtle); font-size: 0.75rem; color: var(--text-muted);">
+        <div style="font-weight: 600; color: var(--text-secondary); margin-bottom: 2px;">Reference Forecasting Backbone</div>
+        <div>{{ model_name }}</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Right Dominant Map Panel -->
+  <section class="map-panel">
+    <div class="map-container-relative">
+      <div id="india-map"></div>
+
+      <!-- Floating Map Overlays -->
+      <div class="map-control-overlay map-control-top-left">
+        <select id="filter-activity" class="map-dropdown" title="Filter thermal intensity">
+          <option value="all">Thermal activity: All detections</option>
+          <option value="high">High &amp; Severe (&ge; 20 MW)</option>
+          <option value="severe">Severe only (&ge; 50 MW)</option>
+        </select>
+      </div>
+
+      <div class="map-control-overlay map-control-top-right">
+        <select id="select-map-layer" class="map-dropdown" title="Toggle cartographic basemap">
+          <option value="topo">Basemap: Topo Atlas</option>
+          <option value="osm">Basemap: OpenStreetMap</option>
+        </select>
+      </div>
+
+      <div class="map-control-overlay map-control-left">
+        <button id="map-btn-zoomin" class="map-btn map-btn-icon" title="Zoom in">+</button>
+        <button id="map-btn-zoomout" class="map-btn map-btn-icon" title="Zoom out">&minus;</button>
+        <button id="map-btn-reset" class="map-btn" style="margin-top: 4px; padding: 5px 8px; font-size: 0.6875rem;" title="Reset pan &amp; zoom to sovereign India">
+          Reset View
+        </button>
+      </div>
+
+      <!-- Bottom-Right Editorial Legend -->
+      <div class="map-legend-card">
+        <div class="map-legend-title">Fire Radiative Power</div>
+        <div class="legend-items">
+          <div class="legend-item">
+            <span class="legend-marker tier-1"></span>
+            <span>&lt; 5 MW</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-marker tier-2"></span>
+            <span>5 &ndash; 20 MW</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-marker tier-3"></span>
+            <span>20 &ndash; 50 MW</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-marker tier-4"></span>
+            <span style="font-weight: 600; color: var(--fire-orange-dark);">&ge; 50 MW (Severe)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Bottom Priority Detections Editorial Table -->
+<section class="priority-section">
+  <div class="card" style="padding: 24px 28px;">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="font-family: var(--font-serif); font-size: 1.375rem;">Priority detections</h2>
+        <p class="card-subtitle">Real-time VIIRS 375m thermal detections ranked by radiative intensity across sovereign India</p>
+      </div>
+      <span id="priority-count-badge" class="badge badge-tag mono">&mdash; Detections</span>
+    </div>
+
+    <div class="table-container">
+      <table class="editorial-table">
+        <thead>
+          <tr>
+            <th style="width: 60px;">Rank</th>
+            <th>Fire Radiative Power</th>
+            <th>Severity</th>
+            <th>Location (Lat, Lon)</th>
+            <th>Satellite</th>
+            <th>Confidence</th>
+            <th>Observed (IST)</th>
+          </tr>
+        </thead>
+        <tbody id="priority-table-body">
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 24px; color: var(--text-muted);">
+              Loading satellite observations...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/overview.js') }}"></script>
+{% endblock %}

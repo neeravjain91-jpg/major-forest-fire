@@ -351,3 +351,60 @@ def test_factorial_interaction_bootstrap_symmetry():
     res = compute_factorial_interaction_bootstrap(y, p, p, p, p, metric_name="roc_auc", n_bootstraps=50)
     assert res["interaction"]["observed"] == 0.0
     assert res["interaction"]["ci_excludes_zero"] is False
+
+
+def test_replay_fails_closed_without_synthetic_fallbacks():
+    """Verify historical replay strictly fails closed and refuses to fabricate synthetic values if features are missing."""
+    from unittest.mock import MagicMock
+    from src.replay.historical_replay import HistoricalReplayEngine
+
+    # Sample dataframe missing required terrain and environmental features
+    incomplete_df = pd.DataFrame([
+        {
+            "acq_date": pd.Timestamp("2024-03-10"),
+            "grid_lat": 20.0,
+            "grid_lon": 80.0,
+            "fire": 1,
+            # Only 2 features provided
+            "temp_1d": 35.0,
+            "rh_1d": 25.0,
+        }
+    ])
+
+    mock_model = MagicMock()
+    mock_model.feature_names_in_ = np.array(["temp_1d", "elevation_m", "vpd_1d"])
+
+    engine = HistoricalReplayEngine.__new__(HistoricalReplayEngine)
+    engine.df = incomplete_df
+    engine.model = mock_model
+    engine.events_df = None
+
+    # Must raise ValueError with explicit fail-closed message
+    with pytest.raises(ValueError, match="Fail-closed scientific integrity policy"):
+        engine.execute_replay("2024-03-10")
+
+
+def test_block_bootstrap_confidence_interval():
+    """Verify dependence-aware block bootstrap resampling respects cluster grouping."""
+    from src.evaluation.statistical_testing import compute_block_bootstrap_confidence_interval
+
+    np.random.seed(42)
+    n = 300
+    y = np.random.binomial(1, 0.5, n)
+    # Model A is strictly better than Model B
+    p_a = np.clip(y * 0.4 + 0.3 + np.random.normal(0, 0.1, n), 0.01, 0.99)
+    p_b = np.random.uniform(0.1, 0.9, n)
+
+    # 10 date blocks with 30 observations each
+    block_ids = np.repeat([f"2024-03-{d:02d}" for d in range(1, 11)], 30)
+
+    res = compute_block_bootstrap_confidence_interval(
+        y, p_a, p_b, block_ids=block_ids, metric_name="roc_auc", n_bootstraps=100, seed=42
+    )
+
+    assert res["n_blocks"] == 10
+    assert res["observed_delta"] > 0.0
+    assert "ci_95_lower" in res
+    assert "ci_95_upper" in res
+    assert res["ci_95_lower"] <= res["ci_95_upper"]
+

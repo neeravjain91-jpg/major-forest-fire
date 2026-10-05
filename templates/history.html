@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Historical Intelligence &amp; Spatial Replay | India Forest Fire Intelligence{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="kicker">RETROSPECTIVE VERIFICATION &bull; SPATIOTEMPORAL DYNAMICS</div>
+  <h1>Historical Intelligence &amp; Replay Station</h1>
+  <p>
+    Track multi-day wildfire complexes across India and simulate prospective forward forecasts (T &rarr; T+24h) against untouched satellite ground-truth observations.
+  </p>
+</div>
+
+<div class="history-grid">
+  <!-- Left Column: Spatiotemporal Event Complexes -->
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <div style="padding: 20px 24px; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <h2 class="card-title" style="font-family: var(--font-serif); font-size: 1.25rem;">Spatiotemporal Event Complexes</h2>
+            <span class="card-subtitle">Connected-component event complexes tracked across contiguous days</span>
+          </div>
+          <span id="events-count-badge" class="badge badge-tag mono">Loading Events...</span>
+        </div>
+      </div>
+      <div class="map-container-relative" style="height: 520px;">
+        <div id="history-map"></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Connected-Component Tracking Protocol:</strong><br>
+      Active fire detections are linked into bounded spatiotemporal events using threshold-based connected-component clustering (25 km spatial threshold, 2 days maximum temporal gap). Event persistence is defined strictly as the continuation of an active complex into T+1d within 25 km.
+    </div>
+  </section>
+
+  <!-- Right Column: Dual-Domain Replay Simulation Station -->
+  <section style="display: flex; flex-direction: column; gap: 20px;">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title" style="font-family: var(--font-serif); font-size: 1.25rem;">Prospective Replay Simulator</h2>
+          <span class="card-subtitle">Retrospective prospective forecasting vs. next-day VIIRS ground truth</span>
+        </div>
+        <span class="badge badge-tag">2024&ndash;2025 Test Period</span>
+      </div>
+
+      <!-- Controls Form -->
+      <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 24px;">
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="form-group">
+            <label class="form-label"><span>Forecast Origin Date (T)</span><span class="unit">YYYY-MM-DD</span></label>
+            <input type="date" id="replay-date" class="form-input mono" value="2024-03-25" min="2024-01-01" max="2025-12-31">
+          </div>
+          <div class="form-group">
+            <label class="form-label">
+              <span>Decision Threshold</span>
+              <span id="replay-threshold-val" class="unit mono">0.40</span>
+            </label>
+            <input type="range" id="replay-threshold" min="0.20" max="0.80" step="0.05" value="0.40" style="margin-top: 6px;">
+          </div>
+        </div>
+
+        <button type="button" id="btn-run-replay" class="btn-primary" style="padding: 11px;">
+          Run Retrospective Replay
+        </button>
+      </div>
+
+      <!-- Simulation Summary Dates -->
+      <div style="display: flex; justify-content: space-between; padding: 12px 16px; background-color: var(--bg-paper-warm); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.8125rem;">
+        <div>
+          <span style="color: var(--text-muted);">Origin (T): </span>
+          <strong id="replay-origin-date" class="mono">2024-03-25</strong>
+        </div>
+        <div>&rarr;</div>
+        <div>
+          <span style="color: var(--text-muted);">Target (T+1d): </span>
+          <strong id="replay-target-date" class="mono">2024-03-26</strong>
+        </div>
+      </div>
+
+      <!-- Dual-Domain Metric Results -->
+      <div class="kpi-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 20px;">
+        <div class="kpi-block" style="border-left: 3px solid var(--fire-orange);">
+          <div class="kpi-label">Candidate-Domain Recall</div>
+          <div id="replay-cand-recall" class="kpi-value mono" style="font-size: 1.875rem; color: var(--fire-orange-dark);">66.17%</div>
+          <div class="kpi-subtext">Conditioned on monitored candidate cells</div>
+        </div>
+
+        <div class="kpi-block" style="border-left: 3px solid var(--earth-slate);">
+          <div class="kpi-label">Full-Target Accounting</div>
+          <div id="replay-full-recall" class="kpi-value mono" style="font-size: 1.875rem; color: var(--earth-slate);">3.69%</div>
+          <div class="kpi-subtext">Nationwide denominator across all India</div>
+        </div>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+        <div class="kpi-block">
+          <div class="kpi-label">Macro Precision</div>
+          <div id="replay-precision" class="mono" style="font-size: 1.25rem; font-weight: 700;">2.35%</div>
+          <div class="kpi-subtext">Aligns with natural 2.32% base rate</div>
+        </div>
+        <div class="kpi-block">
+          <div class="kpi-label">False Positive Rate</div>
+          <div id="replay-fpr" class="mono" style="font-size: 1.25rem; font-weight: 700;">33.51%</div>
+          <div class="kpi-subtext">Expected in rare-event filtering</div>
+        </div>
+      </div>
+
+      <!-- Spatial Target Breakdown Table -->
+      <div class="table-container" style="margin-bottom: 16px;">
+        <table class="editorial-table">
+          <thead>
+            <tr>
+              <th>Verification Category</th>
+              <th style="text-align: right;">Count</th>
+              <th>Evaluation Domain</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Forecast Hits (True Positives)</td>
+              <td id="cm-hits" class="mono" style="text-align: right; font-weight: 700; color: var(--fire-orange-dark);">32</td>
+              <td>Candidate Domain &amp; Nationwide</td>
+            </tr>
+            <tr>
+              <td>Candidate False Alarms</td>
+              <td id="cm-false-alarms" class="mono" style="text-align: right;">1,482</td>
+              <td>Candidate Domain</td>
+            </tr>
+            <tr>
+              <td>Misses in Monitored Candidates</td>
+              <td id="cm-misses-candidate" class="mono" style="text-align: right;">16</td>
+              <td>Candidate Domain</td>
+            </tr>
+            <tr>
+              <td>Unmonitored Fires Outside Candidates</td>
+              <td id="cm-misses-outside" class="mono" style="text-align: right; color: var(--text-muted);">847</td>
+              <td>Unconstrained Nationwide Denominator</td>
+            </tr>
+            <tr style="background-color: var(--bg-paper-warm); font-weight: 600;">
+              <td>Total Confirmed Fires at T+1d</td>
+              <td id="cm-total-actual" class="mono" style="text-align: right;">879</td>
+              <td>Sovereign Ground Truth (VIIRS)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Rigorous Domain Disclosure -->
+      <div class="callout">
+        <strong>Scientific Domain Disclosure:</strong><br>
+        Reporting 66.17% recall is valid strictly within the candidate surveillance domain (cells with active antecedents or historical fire occurrence). When evaluated against all active fire pixels detected across the entirety of sovereign India on T+1d, unconstrained predictive recall is 3.69%. This distinction is essential for honest operational appraisal.
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

@@ -51,24 +51,24 @@ class HistoricalReplayEngine:
         else:
             features_to_use = FEATURES_MULTIMODAL_39
 
-        for feat in features_to_use:
-            if feat not in origin_obs.columns:
-                if feat == "elevation_m":
-                    origin_obs[feat] = 350.0
-                elif feat == "slope_deg":
-                    origin_obs[feat] = 0.5
-                elif feat == "ruggedness_index":
-                    origin_obs[feat] = 50.0
-                elif feat in ("vpd_1d", "vpd_3d_mean"):
-                    origin_obs[feat] = 2.0
-                elif feat == "soil_drought_index":
-                    origin_obs[feat] = 0.4
-                elif feat == "fire_history_recurrence":
-                    origin_obs[feat] = 0.1
-                elif feat == "antecedent_fire_24h":
-                    origin_obs[feat] = 0.0
-                else:
-                    origin_obs[feat] = 0.0
+        # Fail-closed scientific integrity policy: strictly refuse to fabricate or impute synthetic values
+        missing_features = [feat for feat in features_to_use if feat not in origin_obs.columns]
+        if missing_features:
+            raise ValueError(
+                f"Fail-closed scientific integrity policy: Required feature(s) {missing_features} "
+                f"are missing from candidate observations for date {t_date.strftime('%Y-%m-%d')}. "
+                "Synthetic fallbacks are strictly prohibited in scientific evaluation."
+            )
+
+        # Exclude candidate rows with missing feature values rather than imputing synthetic defaults
+        null_mask = origin_obs[features_to_use].isnull().any(axis=1)
+        if null_mask.any():
+            origin_obs = origin_obs[~null_mask].copy()
+            if len(origin_obs) == 0:
+                raise ValueError(
+                    f"Fail-closed scientific integrity policy: All candidate observations on "
+                    f"{t_date.strftime('%Y-%m-%d')} contain missing feature values. Prediction unavailable."
+                )
 
         probs = self.model.predict_proba(origin_obs[features_to_use])[:, 1]
         origin_obs["forecast_prob"] = np.round(probs, 4)

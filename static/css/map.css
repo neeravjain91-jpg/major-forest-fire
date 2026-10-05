@@ -1,0 +1,249 @@
+/* ==========================================================================
+   INDIA FOREST FIRE INTELLIGENCE — ATLAS MAP STYLING
+   Dominant Leaflet Map, Restrained Earth Tiles, FRP Fire Markers, Legend
+   ========================================================================== */
+
+.map-container-relative {
+  position: relative;
+  width: 100%;
+  height: 620px;
+  background-color: #f4ede1;
+}
+
+#india-map, #history-map {
+  width: 100%;
+  height: 100%;
+  background-color: #f4ede1;
+}
+
+/* Subtle warm atlas tile treatment */
+.leaflet-tile-pane {
+  filter: sepia(0.08) contrast(1.02) brightness(0.99);
+}
+
+/* Custom Fire Marker halations & pins */
+.leaflet-div-icon.fire-marker {
+  background: transparent;
+  border: none;
+}
+
+.fire-pin {
+  border-radius: 50%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.fire-pin:hover {
+  transform: scale(1.25);
+  z-index: 1000 !important;
+}
+
+/* Fire marker severity tiers */
+.fire-pin.low {
+  background-color: rgba(234, 179, 8, 0.85);
+  border: 1px solid #ca8a04;
+  box-shadow: 0 0 6px rgba(234, 179, 8, 0.4);
+}
+
+.fire-pin.moderate {
+  background-color: rgba(249, 115, 22, 0.85);
+  border: 1px solid #ea580c;
+  box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
+}
+
+.fire-pin.high {
+  background-color: rgba(234, 88, 12, 0.9);
+  border: 1px solid #c2410c;
+  box-shadow: 0 0 10px rgba(234, 88, 12, 0.6);
+}
+
+.fire-pin.severe {
+  background: radial-gradient(circle, #ffffff 25%, #dc2626 50%, #991b1b 100%);
+  border: 1.5px solid #7f1d1d;
+  box-shadow: 0 0 14px rgba(220, 38, 38, 0.8);
+  animation: severe-pulse 2s infinite ease-in-out;
+}
+
+@keyframes severe-pulse {
+  0% { box-shadow: 0 0 8px rgba(220, 38, 38, 0.6); }
+  50% { box-shadow: 0 0 18px rgba(220, 38, 38, 0.95); }
+  100% { box-shadow: 0 0 8px rgba(220, 38, 38, 0.6); }
+}
+
+/* Floating Map Controls */
+.map-control-overlay {
+  position: absolute;
+  z-index: 500;
+  pointer-events: auto;
+}
+
+.map-control-top-left {
+  top: 14px;
+  left: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.map-control-top-right {
+  top: 14px;
+  right: 14px;
+}
+
+.map-control-left {
+  top: 70px;
+  left: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.map-btn {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 0.78125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.map-btn:hover {
+  background-color: var(--bg-paper-warm);
+  border-color: var(--border-strong);
+}
+
+.map-btn-icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.map-dropdown {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  font-size: 0.78125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  outline: none;
+}
+
+/* Editorial Map Legend (Bottom Right) */
+.map-legend-card {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  z-index: 500;
+  background-color: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-card);
+  font-size: 0.71875rem;
+}
+
+.map-legend-title {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-secondary);
+}
+
+.legend-marker {
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.legend-marker.tier-1 { width: 7px; height: 7px; background-color: #eab308; }
+.legend-marker.tier-2 { width: 9px; height: 9px; background-color: #f97316; }
+.legend-marker.tier-3 { width: 11px; height: 11px; background-color: #ea580c; }
+.legend-marker.tier-4 { width: 13px; height: 13px; background: radial-gradient(circle, #fff 25%, #dc2626 50%, #991b1b 100%); border: 1px solid #7f1d1d; }
+
+/* Custom Leaflet Popups */
+.leaflet-popup-content-wrapper {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-elevated);
+  padding: 0;
+  overflow: hidden;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text-primary);
+  min-width: 200px;
+}
+
+.atlas-popup {
+  padding: 14px 16px;
+}
+
+.atlas-popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.atlas-popup-frp {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  color: var(--fire-orange-dark);
+}
+
+.atlas-popup-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  font-size: 0.75rem;
+}
+
+.atlas-popup-key {
+  color: var(--text-muted);
+}
+
+.atlas-popup-val {
+  color: var(--text-primary);
+  font-weight: 500;
+  text-align: right;
+}

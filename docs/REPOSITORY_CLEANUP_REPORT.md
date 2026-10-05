@@ -146,7 +146,7 @@ major-forest-fire/
 │   │   ├── dataset_builder.py
 │   │   ├── environmental.py
 │   │   └── terrain.py
-│   ├── events/                        # Spatiotemporal DBSCAN & event persistence tracking
+│   ├── events/                        # Spatiotemporal connected-component event tracking
 │   │   └── event_clustering.py
 │   ├── models/                        # Baseline models, BiGRU temporal net, ablations, horizons
 │   │   ├── baselines.py
@@ -230,10 +230,31 @@ major-forest-fire/
 │   ├── MAJOR_PROJECT_ARCHITECTURE.md  # End-to-end research architecture & design
 │   ├── CURRENT_STATE_AUDIT.md         # Architectural transition audit from mini baseline
 │   ├── DEPLOYMENT.md                  # Operational deployment, API contracts, security
-│   └── REPOSITORY_CLEANUP_REPORT.md   # This delivery report
+│   ├── REPOSITORY_CLEANUP_REPORT.md   # Repository consolidation report
+│   ├── SCIENTIFIC_VALIDATION_REPORT.md # Audit findings & scientific corrections
+│   ├── UI_REDESIGN_REPORT.md          # Editorial atlas design system report
+│   └── screenshots/                   # Headless browser verification captures
 │
-└── templates/                         # Web GIS demonstration interface
-    └── index.html
+├── static/                            # Modular frontend design system assets
+│   ├── css/
+│   │   ├── main.css                   # Paper/ivory design tokens, CSS reset, typography
+│   │   ├── layout.css                 # Sticky header, editorial split layout, media queries
+│   │   ├── components.css             # Editorial cards, KPI blocks, tables, badges, gauges
+│   │   └── map.css                    # Dominant Leaflet map, glowing fire pins, legend
+│   └── js/
+│       ├── app.js                     # Global status polling & notifications
+│       ├── map.js                     # AtlasMap class, Esri Topo tiles, boundary GeoJSON
+│       ├── overview.js                # Live FIRMS ingestion, map marker ranking, table sync
+│       ├── risk.js                    # Scenario preset loader, multimodal forecast runner
+│       ├── history.js                 # Event complexes map, dual-domain replay station
+│       └── research.js                # Dynamic research metrics & 95% CI forest plot
+│
+└── templates/                         # Modular Jinja2 web interface templates
+    ├── base.html                      # Shared header, navigation, and disclaimer footer
+    ├── overview.html                  # "India, in focus.", live surveillance & priority table
+    ├── risk.html                      # 39-feature risk classifier & multi-horizon projections
+    ├── history.html                   # Event complexes & dual-domain prospective replay
+    └── research.html                  # Academic benchmarks, 2x2 factorial, forest plot, LOGRO
 ```
 
 ---

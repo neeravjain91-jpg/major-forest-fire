@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}Multimodal Risk Assessment | India Forest Fire Intelligence{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="kicker">CAUSAL INFERENCE &bull; MULTIMODAL FEATURE SPACE</div>
+  <h1>Multimodal Risk Assessment</h1>
+  <p>
+    Evaluate instantaneous fire-conducive probability and prospective forward horizons (T+24h, T+48h, Event Persistence) using the validated 39-feature multimodal framework.
+  </p>
+</div>
+
+<!-- Scenario Presets Bar -->
+<div style="margin: 20px 0 10px;">
+  <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+    Pre-Configured Regional Scenarios
+  </div>
+  <div class="presets-container">
+    <button type="button" class="preset-chip active" data-preset="central">Central Deciduous (Severe Pre-Monsoon)</button>
+    <button type="button" class="preset-chip" data-preset="ghats">Western Ghats Montane (Moderate Risk)</button>
+    <button type="button" class="preset-chip" data-preset="himalaya">Himalayan Foothills (Spring Pre-Monsoon)</button>
+    <button type="button" class="preset-chip" data-preset="monsoon">Monsoon Peninsula (Minimal Risk)</button>
+  </div>
+</div>
+
+<div class="risk-grid">
+  <!-- Left Column: 39-Feature Form -->
+  <form id="risk-evaluation-form" method="POST" action="/predict">
+    <div style="display: flex; flex-direction: column; gap: 20px;">
+      
+      <!-- Section 1: Spatiotemporal Coordinates -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">1. Spatiotemporal Coordinates</h2>
+          <span class="card-subtitle">Sovereign Grid Location &amp; Calendar Time</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label"><span>Latitude</span><span class="unit">&deg;N</span></label>
+            <input type="number" step="0.1" name="grid_lat" id="field-grid_lat" class="form-input mono" required value="21.8">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Longitude</span><span class="unit">&deg;E</span></label>
+            <input type="number" step="0.1" name="grid_lon" id="field-grid_lon" class="form-input mono" required value="86.3">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Local Solar Hour</span><span class="unit">0-23</span></label>
+            <input type="number" name="hour" id="field-hour" class="form-input mono" required value="8">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Month</span><span class="unit">1-12</span></label>
+            <input type="number" name="month" id="field-month" class="form-input mono" required value="4">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Year</span><span class="unit">YYYY</span></label>
+            <input type="number" name="year" id="field-year" class="form-input mono" required value="2024">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Instantaneous Meteorology (1-Day Antecedent) -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">2. Antecedent Meteorology (24-Hour Mean)</h2>
+          <span class="card-subtitle">ECMWF ERA5-Land Reanalysis</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label"><span>2m Air Temp</span><span class="unit">&deg;C</span></label>
+            <input type="number" step="0.1" name="temp_1d" id="field-temp_1d" class="form-input mono" required value="39.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Relative Humidity</span><span class="unit">%</span></label>
+            <input type="number" step="0.1" name="rh_1d" id="field-rh_1d" class="form-input mono" required value="18.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>10m Wind Speed</span><span class="unit">m/s</span></label>
+            <input type="number" step="0.1" name="wind_1d" id="field-wind_1d" class="form-input mono" required value="4.8">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Surface Pressure</span><span class="unit">hPa</span></label>
+            <input type="number" step="0.1" name="pressure_1d" id="field-pressure_1d" class="form-input mono" required value="1003.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Topsoil Moisture</span><span class="unit">m&sup3;/m&sup3;</span></label>
+            <input type="number" step="0.01" name="soil_1d" id="field-soil_1d" class="form-input mono" required value="0.08">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Total Precipitation</span><span class="unit">mm</span></label>
+            <input type="number" step="0.1" name="rain_1d" id="field-rain_1d" class="form-input mono" required value="0.0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Multi-Timescale Drying Trends (3-Day & 7-Day) -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">3. Multi-Timescale Drying Dynamics</h2>
+          <span class="card-subtitle">3-Day (72h) &amp; 7-Day (168h) Antecedent Windows</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label"><span>Temp (3d Mean)</span><span class="unit">&deg;C</span></label>
+            <input type="number" step="0.1" name="temp_3d_mean" id="field-temp_3d_mean" class="form-input mono" required value="38.6">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Temp (3d Max)</span><span class="unit">&deg;C</span></label>
+            <input type="number" step="0.1" name="temp_3d_max" id="field-temp_3d_max" class="form-input mono" required value="42.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Temp (3d Min)</span><span class="unit">&deg;C</span></label>
+            <input type="number" step="0.1" name="temp_3d_min" id="field-temp_3d_min" class="form-input mono" required value="27.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>RH (3d Mean)</span><span class="unit">%</span></label>
+            <input type="number" step="0.1" name="rh_3d_mean" id="field-rh_3d_mean" class="form-input mono" required value="20.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>RH (3d Min)</span><span class="unit">%</span></label>
+            <input type="number" step="0.1" name="rh_3d_min" id="field-rh_3d_min" class="form-input mono" required value="14.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Wind (3d Mean)</span><span class="unit">m/s</span></label>
+            <input type="number" step="0.1" name="wind_3d_mean" id="field-wind_3d_mean" class="form-input mono" required value="4.2">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Wind (3d Max)</span><span class="unit">m/s</span></label>
+            <input type="number" step="0.1" name="wind_3d_max" id="field-wind_3d_max" class="form-input mono" required value="7.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Pressure (3d Mean)</span><span class="unit">hPa</span></label>
+            <input type="number" step="0.1" name="pressure_3d_mean" id="field-pressure_3d_mean" class="form-input mono" required value="1004.2">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Soil (3d Mean)</span><span class="unit">m&sup3;/m&sup3;</span></label>
+            <input type="number" step="0.01" name="soil_3d_mean" id="field-soil_3d_mean" class="form-input mono" required value="0.09">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Rain (3d Total)</span><span class="unit">mm</span></label>
+            <input type="number" step="0.1" name="rain_3d_total" id="field-rain_3d_total" class="form-input mono" required value="0.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Temp (7d Mean)</span><span class="unit">&deg;C</span></label>
+            <input type="number" step="0.1" name="temp_7d_mean" id="field-temp_7d_mean" class="form-input mono" required value="37.8">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Temp (7d Max)</span><span class="unit">&deg;C</span></label>
+            <input type="number" step="0.1" name="temp_7d_max" id="field-temp_7d_max" class="form-input mono" required value="43.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Temp (7d Min)</span><span class="unit">&deg;C</span></label>
+            <input type="number" step="0.1" name="temp_7d_min" id="field-temp_7d_min" class="form-input mono" required value="25.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>RH (7d Mean)</span><span class="unit">%</span></label>
+            <input type="number" step="0.1" name="rh_7d_mean" id="field-rh_7d_mean" class="form-input mono" required value="23.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>RH (7d Min)</span><span class="unit">%</span></label>
+            <input type="number" step="0.1" name="rh_7d_min" id="field-rh_7d_min" class="form-input mono" required value="12.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Wind (7d Mean)</span><span class="unit">m/s</span></label>
+            <input type="number" step="0.1" name="wind_7d_mean" id="field-wind_7d_mean" class="form-input mono" required value="3.9">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Wind (7d Max)</span><span class="unit">m/s</span></label>
+            <input type="number" step="0.1" name="wind_7d_max" id="field-wind_7d_max" class="form-input mono" required value="8.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Pressure (7d Mean)</span><span class="unit">hPa</span></label>
+            <input type="number" step="0.1" name="pressure_7d_mean" id="field-pressure_7d_mean" class="form-input mono" required value="1005.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Soil (7d Mean)</span><span class="unit">m&sup3;/m&sup3;</span></label>
+            <input type="number" step="0.01" name="soil_7d_mean" id="field-soil_7d_mean" class="form-input mono" required value="0.10">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Rain (7d Total)</span><span class="unit">mm</span></label>
+            <input type="number" step="0.1" name="rain_7d_total" id="field-rain_7d_total" class="form-input mono" required value="0.0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Authoritative Terrain Geomorphology -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">4. Terrain Geomorphology</h2>
+          <span class="card-subtitle">NOAA ETOPO 2022 Global Relief Model (embedding NASA SRTM v3.0)</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label"><span>Elevation</span><span class="unit">meters MSL</span></label>
+            <input type="number" step="1" name="elevation_m" id="field-elevation_m" class="form-input mono" required value="350.0">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Horn 3x3 Slope</span><span class="unit">degrees</span></label>
+            <input type="number" step="0.1" name="slope_deg" id="field-slope_deg" class="form-input mono" required value="4.5">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Riley TRI (Ruggedness)</span><span class="unit">index</span></label>
+            <input type="number" step="0.1" name="ruggedness_index" id="field-ruggedness_index" class="form-input mono" required value="28.0">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Environmental Fuel Dryness & Causal History -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">5. Fuel Desiccation &amp; Causal Fire History</h2>
+          <span class="card-subtitle">Strictly Causal Historical Availability (t &lt; T)</span>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label"><span>VPD (1-Day)</span><span class="unit">kPa</span></label>
+            <input type="number" step="0.01" name="vpd_1d" id="field-vpd_1d" class="form-input mono" required value="2.85">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>3-Day VPD Proxy</span><span class="unit">kPa</span></label>
+            <input type="number" step="0.01" name="vpd_3d_mean" id="field-vpd_3d_mean" class="form-input mono" required value="2.70">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Soil Moisture Deficit Proxy</span><span class="unit">[0.0, 1.0]</span></label>
+            <input type="number" step="0.01" name="soil_drought_index" id="field-soil_drought_index" class="form-input mono" required value="0.77">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Historical Recurrence Rate</span><span class="unit">events/yr</span></label>
+            <input type="number" step="0.01" name="fire_history_recurrence" id="field-fire_history_recurrence" class="form-input mono" required value="0.45">
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span>Antecedent Fire 24h</span><span class="unit">0 or 1</span></label>
+            <input type="number" step="1" min="0" max="1" name="antecedent_fire_24h" id="field-antecedent_fire_24h" class="form-input mono" required value="1">
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <button type="submit" id="btn-evaluate-risk" class="btn-primary" style="width: 100%; padding: 14px; font-size: 0.9375rem;">
+          Evaluate Multimodal Risk
+        </button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Right Column: Results & Horizon Diagnostics -->
+  <aside style="display: flex; flex-direction: column; gap: 20px;">
+    <!-- Score Card -->
+    <div class="score-card">
+      <div class="kicker">PREDICTED OCCURRENCE RISK</div>
+      <div id="result-prob-value" class="score-number {% if result and result.probability >= 50 %}high{% endif %}">
+        {% if result %}{{ result.probability }}%{% else %}78.4%{% endif %}
+      </div>
+      <div style="margin-bottom: 8px;">
+        <span id="result-risk-badge" class="badge {% if result and result.probability >= 50 %}badge-high{% else %}badge-high{% endif %}">
+          {% if result %}{{ result.label }}{% else %}HIGH RISK{% endif %}
+        </span>
+      </div>
+
+      <div class="score-bar-track">
+        <div id="result-score-fill" class="score-bar-fill" style="width: {% if result %}{{ result.probability }}%{% else %}78.4%{% endif %};"></div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+        <span>Epistemic Uncertainty:</span>
+        <strong id="result-uncertainty" class="mono" style="color: var(--text-primary);">&plusmn; 1.85%</strong>
+      </div>
+    </div>
+
+    <!-- Multi-Horizon Breakdown Card -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Multi-Horizon Projections</h2>
+          <span class="card-subtitle">Comparing Instantaneous Occurrence vs. Forward Targets</span>
+        </div>
+      </div>
+
+      <div class="horizon-list">
+        <div class="horizon-item">
+          <div>
+            <div class="horizon-title">T &bull; Diagnostic Occurrence</div>
+            <div class="horizon-desc">Instantaneous fire-conducive probability</div>
+          </div>
+          <div id="horizon-t-val" class="horizon-val mono" style="color: var(--fire-orange-dark);">
+            {% if result %}{{ result.probability }}%{% else %}78.4%{% endif %}
+          </div>
+        </div>
+
+        <div class="horizon-item">
+          <div>
+            <div class="horizon-title">T + 24h &bull; Forward Cell Risk</div>
+            <div class="horizon-desc">Next-day cell anomaly (53.13% ROC-AUC)</div>
+          </div>
+          <div id="horizon-24h-val" class="horizon-val mono">74.5%</div>
+        </div>
+
+        <div class="horizon-item">
+          <div>
+            <div class="horizon-title">T + 48h &bull; Forward Cell Risk</div>
+            <div class="horizon-desc">Two-day cell anomaly (54.55% ROC-AUC)</div>
+          </div>
+          <div id="horizon-48h-val" class="horizon-val mono">69.0%</div>
+        </div>
+
+        <div class="horizon-item" style="border-left: 3px solid var(--fire-orange);">
+          <div>
+            <div class="horizon-title" style="color: var(--fire-orange-dark);">Event Persistence (24h)</div>
+            <div class="horizon-desc">Active cluster continuity (68.39% ROC-AUC)</div>
+          </div>
+          <div id="horizon-persist-val" class="horizon-val mono" style="color: var(--fire-orange-dark);">87.8%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scientific Disclosure Callout -->
+    <div class="callout">
+      <strong>Scientific Target Disclosure:</strong><br>
+      Notice the fundamental difference between <em>synchronous occurrence classification</em> (T) and <em>forward cell ignition forecasting</em> (T+24h). While synoptic meteorology classifies instantaneous occurrence (62.31% ROC-AUC), cell-level forward ignition forecasting is near-random (53.13% ROC-AUC) without active fire momentum. Conversely, <strong>Event Persistence</strong> achieves 68.39% ROC-AUC.
+    </div>
+  </aside>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/risk.js') }}"></script>
+{% endblock %}

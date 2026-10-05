@@ -34,7 +34,7 @@ This audit establishes:
 
 2. **Point / Cell Independence vs. Event-Centric Dynamics**:
    - The baseline treats each 0.1° cell on each day as an independent, identically distributed (i.i.d.) point. Real wildfires are connected spatiotemporal events that ignite, grow, cluster, disperse smoke/heat, and persist across contiguous days and adjacent cells.
-   - Major Project Requirement: Construct spatiotemporal fire clusters ($\text{DBSCAN-ST}$), tracking event duration, bounding boxes, centroid trajectories, detection counts, and expansion kinetics.
+   - Major Project Requirement: Construct spatiotemporal fire clusters via threshold-based spatiotemporal connected-component event tracking, tracking event duration, bounding boxes, centroid trajectories, detection counts, and expansion kinetics.
 
 3. **Absence of Multimodal Environmental Context**:
    - The baseline relied solely on 2-meter air temperature, relative humidity, wind speed, pressure, soil moisture, and precipitation. It lacked:

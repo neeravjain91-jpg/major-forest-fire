@@ -85,11 +85,51 @@ def index():
     has_key = bool(firms_service.get_api_key())
     active_tab = request.args.get("tab", "live")
     return render_template(
-        "index.html",
+        "overview.html",
         has_key=has_key,
+        active_page="overview",
         active_tab=active_tab,
         model_name=MODEL_NAME,
         input_values={},
+    )
+
+
+@app.route("/risk")
+def risk_page():
+    """Dedicated Risk Classifier view with multimodal 39-feature form and presets."""
+    has_key = bool(firms_service.get_api_key())
+    return render_template(
+        "risk.html",
+        has_key=has_key,
+        active_page="risk",
+        model_name=MODEL_NAME,
+        input_values={},
+        result=None,
+        error=None,
+    )
+
+
+@app.route("/history")
+def history_page():
+    """Dedicated Historical Intelligence & Spatial Replay view."""
+    has_key = bool(firms_service.get_api_key())
+    return render_template(
+        "history.html",
+        has_key=has_key,
+        active_page="history",
+        model_name=MODEL_NAME,
+    )
+
+
+@app.route("/research")
+def research_page():
+    """Dedicated Research Benchmarks and Academic Findings view."""
+    has_key = bool(firms_service.get_api_key())
+    return render_template(
+        "research.html",
+        has_key=has_key,
+        active_page="research",
+        model_name=MODEL_NAME,
     )
 
 
@@ -133,14 +173,16 @@ def predict():
 
     has_key = bool(firms_service.get_api_key())
     return render_template(
-        "index.html",
+        "risk.html",
         result=result,
         error=error,
         has_key=has_key,
+        active_page="risk",
         active_tab="model",
         model_name=MODEL_NAME,
         input_values=input_values,
     )
+
 
 
 @app.route("/api/forecast", methods=["POST"])

@@ -41,6 +41,34 @@ def test_index_page(client):
     assert "Active Surveillance" in text
 
 
+def test_risk_page(client):
+    """GET /risk must render the Risk Classifier page with 200 OK."""
+    resp = client.get("/risk")
+    assert resp.status_code == 200
+    text = resp.get_data(as_text=True)
+    assert "Multimodal Risk Assessment" in text
+    assert "Antecedent Meteorology" in text
+
+
+def test_history_page(client):
+    """GET /history must render the Historical Intelligence & Replay page with 200 OK."""
+    resp = client.get("/history")
+    assert resp.status_code == 200
+    text = resp.get_data(as_text=True)
+    assert "Historical Intelligence" in text
+    assert "Prospective Replay Simulator" in text
+
+
+def test_research_page(client):
+    """GET /research must render the Academic Research Benchmarks page with 200 OK."""
+    resp = client.get("/research")
+    assert resp.status_code == 200
+    text = resp.get_data(as_text=True)
+    assert "Research Benchmarks" in text
+    assert "Controlled 2×2 Factorial Analysis" in text or "Factorial Analysis" in text
+
+
+
 def test_api_firms_status(client):
     """GET /api/firms-status must report operational status without leaking credentials."""
     resp = client.get("/api/firms-status")

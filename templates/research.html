@@ -1,0 +1,469 @@
+{% extends "base.html" %}
+
+{% block title %}Research Benchmarks &amp; Empirical Findings | India Forest Fire Intelligence{% endblock %}
+
+{% block content %}
+<div id="research-view-root" class="page-header">
+  <div class="kicker">SCIENTIFIC EVIDENCE &bull; PEER-REVIEW BENCHMARKS</div>
+  <h1>Research Benchmarks</h1>
+  <p>
+    Empirical evaluations, 2&times;2 factorial analysis, out-of-region spatial generalization, and calibration diagnostics derived from the 131,000-sample India wildfire benchmark (2018&ndash;2025).
+  </p>
+</div>
+
+<!-- Academic KPI Summary Cards -->
+<div class="research-kpi-grid" style="margin: 24px 0 32px;">
+  <div class="research-kpi-card" style="border-top: 3px solid var(--fire-orange);">
+    <div class="kicker">MULTIMODAL FEATURE EFFECT</div>
+    <div class="metric-delta">+2.89%</div>
+    <div class="metric-ci">95% CI: [+2.40%, +3.35%] &bull; ROC-AUC</div>
+    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">
+      Feature main effect isolates terrain, VPD, and fire-history contribution.
+    </div>
+  </div>
+
+  <div class="research-kpi-card" style="border-top: 3px solid var(--fire-orange);">
+    <div class="kicker">EVENT PERSISTENCE</div>
+    <div class="metric-delta">68.39%</div>
+    <div class="metric-ci">ROC-AUC &bull; 18.0% Top-100 Precision</div>
+    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">
+      2.6&times; natural base prevalence (6.87%). Connected complexes exhibit continuity.
+    </div>
+  </div>
+
+  <div class="research-kpi-card" style="border-top: 3px solid var(--earth-slate);">
+    <div class="kicker">T+24h CELL FORECAST</div>
+    <div class="metric-delta" style="color: var(--earth-slate);">53.13%</div>
+    <div class="metric-ci">ROC-AUC &bull; Disclosed Limitation</div>
+    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">
+      Meteorology alone yields near-random cell forecasting without ignition telemetry.
+    </div>
+  </div>
+
+  <div class="research-kpi-card" style="border-top: 3px solid var(--fire-orange);">
+    <div class="kicker">LOGRO GENERALIZATION</div>
+    <div class="metric-delta">64.20%</div>
+    <div class="metric-ci">&plusmn; 0.97% Across 6 Predefined Regimes</div>
+    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">
+      Multimodal features cut cross-regional generalization variance in half.
+    </div>
+  </div>
+
+  <div class="research-kpi-card" style="border-top: 3px solid var(--earth-slate);">
+    <div class="kicker">REPLAY ACCOUNTING</div>
+    <div class="metric-delta" style="color: var(--earth-slate);">3.69%</div>
+    <div class="metric-ci">Full-Spatial Target Accounting Recall</div>
+    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;">
+      Contrast with 66.17% candidate-domain surveillance recall.
+    </div>
+  </div>
+</div>
+
+<div class="research-grid">
+  <!-- Section 1: Controlled 2x2 Factorial Analysis & Forest Plot -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="font-family: var(--font-serif); font-size: 1.375rem;">1. Controlled 2&times;2 Factorial Analysis</h2>
+        <span class="card-subtitle">Paired Bootstrap Resampling (B = 1,000) on Identical Test Observations (N = 31,525, 2024&ndash;2025)</span>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 20px;">
+      <!-- Factorial Design Matrix Table -->
+      <div class="table-container">
+        <table class="editorial-table">
+          <thead>
+            <tr>
+              <th>Cell ID</th>
+              <th>Model Architecture</th>
+              <th>Features</th>
+              <th>ROC-AUC</th>
+              <th>PR-AUC</th>
+              <th>Brier Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="mono" style="font-weight: 600;">Exp A</td>
+              <td>HistGradientBoosting</td>
+              <td>31</td>
+              <td class="mono">59.08%</td>
+              <td class="mono">57.36%</td>
+              <td class="mono">0.2425</td>
+            </tr>
+            <tr>
+              <td class="mono" style="font-weight: 600;">Exp B</td>
+              <td>HistGradientBoosting</td>
+              <td>39</td>
+              <td class="mono">61.79%</td>
+              <td class="mono">60.57%</td>
+              <td class="mono">0.2381</td>
+            </tr>
+            <tr>
+              <td class="mono" style="font-weight: 600;">Exp C</td>
+              <td>LightGBM</td>
+              <td>31</td>
+              <td class="mono">59.25%</td>
+              <td class="mono">57.73%</td>
+              <td class="mono">0.2422</td>
+            </tr>
+            <tr style="background-color: var(--fire-orange-light); font-weight: 600;">
+              <td class="mono" style="color: var(--fire-orange-dark);">Exp D</td>
+              <td style="color: var(--fire-orange-dark);">LightGBM (Primary Major)</td>
+              <td>39</td>
+              <td class="mono" style="color: var(--fire-orange-dark);">62.31%</td>
+              <td class="mono" style="color: var(--fire-orange-dark);">61.14%</td>
+              <td class="mono" style="color: var(--fire-orange-dark);">0.2371</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Factorial Effects & Interaction -->
+      <div class="table-container">
+        <table class="editorial-table">
+          <thead>
+            <tr>
+              <th>Effect Component</th>
+              <th>Observed Delta (&Delta;)</th>
+              <th>95% Bootstrap CI</th>
+              <th>Excludes Zero?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight: 600;">Feature Main Effect</td>
+              <td class="mono" style="font-weight: 700; color: var(--fire-orange-dark);">+2.89%</td>
+              <td class="mono">[+2.40%, +3.35%]</td>
+              <td><span class="badge badge-low" style="background:#dcfce7;color:#166534;border-color:#bbf7d0;">True</span></td>
+            </tr>
+            <tr>
+              <td>Model Family Effect</td>
+              <td class="mono">+0.35%</td>
+              <td class="mono">[+0.10%, +0.56%]</td>
+              <td><span class="badge badge-low" style="background:#dcfce7;color:#166534;border-color:#bbf7d0;">True</span></td>
+            </tr>
+            <tr>
+              <td>Factorial Interaction</td>
+              <td class="mono">+0.35%</td>
+              <td class="mono">[-0.02%, +0.73%]</td>
+              <td><span class="badge badge-tag">Crosses Zero</span></td>
+            </tr>
+            <tr>
+              <td>Brier Score Interaction</td>
+              <td class="mono">-0.0008</td>
+              <td class="mono">[-0.0014, -0.0002]</td>
+              <td><span class="badge badge-low" style="background:#dcfce7;color:#166534;border-color:#bbf7d0;">True</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Forest Plot Visual Container -->
+    <div style="background-color: var(--bg-paper-warm); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px 24px;">
+      <div style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 12px;">
+        Empirical 95% Bootstrap Confidence Intervals (Forest Plot)
+      </div>
+      <div id="forest-plot-container">
+        <!-- Rendered dynamically by research.js -->
+        <div style="font-size: 0.8125rem; color: var(--text-muted); padding: 12px 0;">Loading confidence interval forest plot...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: Modality Ablation Matrix -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="font-family: var(--font-serif); font-size: 1.375rem;">2. Controlled Modality Ablation Matrix</h2>
+        <span class="card-subtitle">Stepwise Expansion from Instantaneous Meteorology to Full Multimodal Integration</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="editorial-table">
+        <thead>
+          <tr>
+            <th>Stage</th>
+            <th>Modality Composition</th>
+            <th>Feature Count</th>
+            <th>ROC-AUC</th>
+            <th>PR-AUC</th>
+            <th>F1-Score</th>
+            <th>Brier Score</th>
+            <th>ECE</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono" style="font-weight: 600;">Stage A</td>
+            <td>Weather 1-Day Instantaneous Only</td>
+            <td class="mono">6</td>
+            <td class="mono">56.25%</td>
+            <td class="mono">54.37%</td>
+            <td class="mono">62.51%</td>
+            <td class="mono">0.2467</td>
+            <td class="mono">0.0230</td>
+          </tr>
+          <tr>
+            <td class="mono" style="font-weight: 600;">Stage B</td>
+            <td>Weather Multi-Timescale (1d + 3d + 7d)</td>
+            <td class="mono">26</td>
+            <td class="mono">57.84%</td>
+            <td class="mono">55.90%</td>
+            <td class="mono">61.61%</td>
+            <td class="mono">0.2451</td>
+            <td class="mono">0.0198</td>
+          </tr>
+          <tr>
+            <td class="mono" style="font-weight: 600;">Stage C</td>
+            <td>Weather History + Causal Fire History ($t &lt; T$)</td>
+            <td class="mono">28</td>
+            <td class="mono">60.53%</td>
+            <td class="mono">59.05%</td>
+            <td class="mono">55.74%</td>
+            <td class="mono">0.2406</td>
+            <td class="mono">0.0226</td>
+          </tr>
+          <tr>
+            <td class="mono" style="font-weight: 600;">Stage D</td>
+            <td>Weather History + Real DEM &amp; Fuel Proxies</td>
+            <td class="mono">32</td>
+            <td class="mono">57.96%</td>
+            <td class="mono">55.84%</td>
+            <td class="mono">61.00%</td>
+            <td class="mono">0.2449</td>
+            <td class="mono">0.0205</td>
+          </tr>
+          <tr style="background-color: var(--fire-orange-light); font-weight: 600;">
+            <td class="mono" style="color: var(--fire-orange-dark);">Stage E</td>
+            <td style="color: var(--fire-orange-dark);">Full Multimodal Integration</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">39</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">62.18%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">60.15%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">59.03%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">0.2375</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">0.0171</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 3: Leave-One-Geographic-Regime-Out (LOGRO) -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="font-family: var(--font-serif); font-size: 1.375rem;">3. Spatial Generalization: LOGRO Protocol</h2>
+        <span class="card-subtitle">Evaluating Cross-Regional Transfer Across Six Predefined Geographic Fire Regimes</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="editorial-table">
+        <thead>
+          <tr>
+            <th>Held-Out Geographic Regime</th>
+            <th>Regional Setting</th>
+            <th>Baseline HGB (31) ROC-AUC</th>
+            <th>Primary LGBM (39) ROC-AUC</th>
+            <th>&Delta; ROC-AUC</th>
+            <th>Baseline Brier</th>
+            <th>Primary Brier</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight: 600;">CENTRAL</td>
+            <td>Interior Deccan dry deciduous plateau</td>
+            <td class="mono">57.67%</td>
+            <td class="mono" style="font-weight: 700; color: var(--fire-orange-dark);">64.55%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">+6.88%</td>
+            <td class="mono">0.2448</td>
+            <td class="mono">0.2336</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">WESTERN_GHATS</td>
+            <td>Moist western coastal escarpment</td>
+            <td class="mono">55.71%</td>
+            <td class="mono" style="font-weight: 700; color: var(--fire-orange-dark);">63.70%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">+7.99%</td>
+            <td class="mono">0.2481</td>
+            <td class="mono">0.2354</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">NORTHEAST</td>
+            <td>Purvanchal &amp; Brahmaputra basin</td>
+            <td class="mono">60.28%</td>
+            <td class="mono" style="font-weight: 700; color: var(--fire-orange-dark);">65.65%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">+5.37%</td>
+            <td class="mono">0.2409</td>
+            <td class="mono">0.2336</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">NORTH</td>
+            <td>Himalayan montane &amp; foothills</td>
+            <td class="mono">57.35%</td>
+            <td class="mono" style="font-weight: 700; color: var(--fire-orange-dark);">64.10%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">+6.75%</td>
+            <td class="mono">0.2459</td>
+            <td class="mono">0.2354</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">EAST</td>
+            <td>Eastern Ghats &amp; Chota Nagpur plateau</td>
+            <td class="mono">57.88%</td>
+            <td class="mono" style="font-weight: 700; color: var(--fire-orange-dark);">62.74%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">+4.86%</td>
+            <td class="mono">0.2454</td>
+            <td class="mono">0.2377</td>
+          </tr>
+          <tr>
+            <td style="font-weight: 600;">NORTHWEST</td>
+            <td>Semi-arid Thar &amp; Aravalli scrub</td>
+            <td class="mono">55.89%</td>
+            <td class="mono" style="font-weight: 700; color: var(--fire-orange-dark);">64.49%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">+8.60%</td>
+            <td class="mono">0.2472</td>
+            <td class="mono">0.2338</td>
+          </tr>
+          <tr style="background-color: var(--bg-paper-warm); font-weight: 700;">
+            <td>National Aggregate Mean</td>
+            <td>Macro Cross-Regional Mean</td>
+            <td class="mono">57.46% &plusmn; 1.66%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">64.20% &plusmn; 0.97%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">+6.74%</td>
+            <td class="mono">0.2454</td>
+            <td class="mono">0.2349</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Section 4: Calibration Comparison Protocol -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="font-family: var(--font-serif); font-size: 1.375rem;">4. Probability Calibration: Raw vs. Platt vs. Isotonic</h2>
+        <span class="card-subtitle">Calibrators Selected on 2023 Validation Data and Evaluated Once on Untouched 2024&ndash;2025 Test Observations</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="editorial-table">
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>Features</th>
+            <th>Calibration Strategy</th>
+            <th>Accuracy</th>
+            <th>Brier Score</th>
+            <th>ECE</th>
+            <th>MCE</th>
+            <th>Calibration Outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HistGradientBoosting</td>
+            <td>31</td>
+            <td>Raw (Uncalibrated)</td>
+            <td class="mono">56.26%</td>
+            <td class="mono">0.2425</td>
+            <td class="mono">0.0092</td>
+            <td class="mono">0.0661</td>
+            <td>Baseline calibration</td>
+          </tr>
+          <tr>
+            <td>HistGradientBoosting</td>
+            <td>31</td>
+            <td>Platt Scaling</td>
+            <td class="mono">56.29%</td>
+            <td class="mono">0.2426</td>
+            <td class="mono">0.0092</td>
+            <td class="mono">0.0872</td>
+            <td>Preserves calibration</td>
+          </tr>
+          <tr>
+            <td>HistGradientBoosting</td>
+            <td>31</td>
+            <td>Isotonic Regression</td>
+            <td class="mono">55.85%</td>
+            <td class="mono">0.2427</td>
+            <td class="mono" style="color: var(--fire-red);">0.0137</td>
+            <td class="mono">0.1227</td>
+            <td><span class="badge badge-tag" style="color:var(--fire-red);">Overfit (+48% ECE)</span></td>
+          </tr>
+          <tr>
+            <td>LightGBM (Primary)</td>
+            <td>39</td>
+            <td>Raw (Uncalibrated)</td>
+            <td class="mono">58.10%</td>
+            <td class="mono">0.2371</td>
+            <td class="mono">0.0150</td>
+            <td class="mono">0.0682</td>
+            <td>Uncalibrated tree log-odds</td>
+          </tr>
+          <tr style="background-color: var(--fire-orange-light); font-weight: 600;">
+            <td style="color: var(--fire-orange-dark);">LightGBM (Primary)</td>
+            <td>39</td>
+            <td style="color: var(--fire-orange-dark);">Platt Scaling (Locked)</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">58.35%</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">0.2371</td>
+            <td class="mono" style="color: var(--fire-orange-dark);">0.0143</td>
+            <td class="mono">0.0922</td>
+            <td><span class="badge badge-low" style="background:#dcfce7;color:#166534;border-color:#bbf7d0;">ECE Reduced</span></td>
+          </tr>
+          <tr>
+            <td>LightGBM (Primary)</td>
+            <td>39</td>
+            <td>Isotonic Regression</td>
+            <td class="mono">58.44%</td>
+            <td class="mono">0.2375</td>
+            <td class="mono" style="color: var(--fire-red);">0.0171</td>
+            <td class="mono">0.0749</td>
+            <td><span class="badge badge-tag" style="color:var(--fire-red);">Overfit (+14% ECE)</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout" style="margin-top: 16px;">
+      <strong>Empirical Calibration Finding:</strong><br>
+      Isotonic regression overfit the 2023 validation distribution and increased test-set ECE across all models ($0.0092 \to 0.0137$ in HGB 31; $0.0150 \to 0.0171$ in LightGBM 39). Parametric Platt scaling (logistic on log-odds) regularized estimates, successfully reducing test-set ECE. Brier score refinement was consistent across multimodal feature additions, demonstrating that Brier improvement is mathematically distinct from ECE reduction.
+    </div>
+  </section>
+
+  <!-- Section 5: Data Provenance & Observational Caveats -->
+  <section class="card">
+    <div class="card-header">
+      <div>
+        <h2 class="card-title" style="font-family: var(--font-serif); font-size: 1.375rem;">5. Data Provenance &amp; Observational Caveats</h2>
+        <span class="card-subtitle">Methodological Constraints and Remote-Sensing Boundary Conditions</span>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 14px; font-size: 0.8125rem; line-height: 1.6; color: var(--text-secondary);">
+      <p>
+        <strong>1. Single DEM Provenance:</strong> Topographic elevation, canonical 3&times;3 Horn slope, and 8-neighbor Riley TRI are derived from the <strong>NOAA ETOPO 2022 Global Relief Model (v1, 15 arc-second grid)</strong>, which integrates NASA SRTM v3.0 land elevation, resampled to 0.10&deg; (~11.1 km) grid centroids across 93,611 sovereign grid cells.
+      </p>
+      <p>
+        <strong>2. Retrospective 1:1 Case-Control Sampling:</strong> The 131,000-sample dataset employs a balanced case-control retrospective design ($P(Y=1) = 0.50$). Model outputs estimate sample posterior probabilities under equal class priors, not nationwide unconditioned incidence (which is $< 0.05\%$ per cell daily).
+      </p>
+      <p>
+        <strong>3. Negative Label Interpretation ($Y=0$):</strong> A negative observation denotes the <em>absence of confirmed VIIRS thermal anomaly detection</em> during orbital overpasses (which may occur due to cloud cover, heavy smoke attenuation, or overpass timing), rather than guaranteed physical non-existence of ground combustion.
+      </p>
+      <p>
+        <strong>4. Epistemic Uncertainty Limitation:</strong> Spearman correlation between Monte Carlo Dropout standard deviation and empirical absolute error was $r_s = -0.1355$ ($p < 0.001$). Dropout variance alone does not provide a monotonic error detector without spatial distance-to-support bounds.
+      </p>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/research.js') }}"></script>
+{% endblock %}

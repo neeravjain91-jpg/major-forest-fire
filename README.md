@@ -47,7 +47,7 @@ Complete provider citations and preprocessing pipelines are detailed in [docs/DA
   - Slope computed via canonical 3x3 weighted finite-difference gradient (Horn, 1981).
   - Topographic Ruggedness Index (TRI) computed via Riley et al. (1999) 8-neighbor root-sum-square elevation variance.
 - **Causal Fire History**: Binary search on strictly historical records ($t < T$) prevents contemporaneous or future fire detection leakage.
-- **Event Clustering & Persistence**: Connected-component spatiotemporal clustering ($\text{DBSCAN-ST}$). Event persistence requires active cluster continuation on calendar date $T+1\text{d}$ within $\le 25\text{ km}$ spatial proximity.
+- **Event Clustering & Persistence**: Threshold-based spatiotemporal connected-component event tracking. Event persistence requires active cluster continuation on calendar date $T+1\text{d}$ within $\le 25\text{ km}$ spatial proximity.
 - **Fuel Dryness Proxies**: Daily vapor pressure deficit (VPD) calculated via the Tetens formula; topsoil drought index calculated relative to a nominal $0.35\text{ m}^3/\text{m}^3$ reference threshold.
 
 Full feature schemas and mathematical definitions are cataloged in [docs/DATA_SCHEMA.md](docs/DATA_SCHEMA.md).
@@ -161,7 +161,7 @@ major-forest-fire/
 │   │   ├── dataset_builder.py
 │   │   ├── environmental.py
 │   │   └── terrain.py
-│   ├── events/                        # Spatiotemporal DBSCAN & event persistence tracking
+│   ├── events/                        # Spatiotemporal connected-component event tracking
 │   │   └── event_clustering.py
 │   ├── models/                        # Baseline models, BiGRU temporal net, ablations, horizons
 │   │   ├── baselines.py

@@ -1,4 +1,4 @@
-"""Spatiotemporal DBSCAN-ST clustering of active fire observations into coherent fire events.
+"""Threshold-based spatiotemporal connected-component event tracking for active fire observations.
 
 Constructs bounded fire complexes, tracks temporal persistence, duration,
 bounding boxes, centroid trajectories, and expansion kinetics.
